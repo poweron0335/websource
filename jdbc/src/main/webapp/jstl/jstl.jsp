@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false"%>
 <%@ include file = "../include/header.jsp"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <h1 class="mt-5">JSTL</h1>
@@ -30,4 +30,8 @@
 <c:forEach var="test" begin="1" end="10" step="2">
     <b>${test}</b>
 </c:forEach>
+<%-- c:out => 화면 출력(조건 부여 가능, 삼항연산자와 모습이 비슷함) --%>
+<c:out value="${flag?"OK":"Error"}"></c:out>
+<%-- 닫는 태그가 무조건 있어야 하는데 사이에 넣을 값이 없으면 /> <= 이런식으로 닫아도 됨 --%>
+<c:out value="${flag?'OK':'Error'}" />
 <%@ include file = "../include/footer.jsp"%>
