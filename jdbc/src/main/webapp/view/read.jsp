@@ -30,8 +30,9 @@
         <textarea class="form-control" id="dscription" rows="3" name="dscription" readonly>${todo.dscription}</textarea>
     </div>
     <div>
-        <a class="btn btn-primary" href='modifyPro.jsp?no=${todo.no}'>수정</a>
-        <a class="btn btn-success" href='<c:url value="/view/list.jsp" />'>목록</a>
+        <a class="btn btn-primary" href='<c:url value="/modify?no=${todo.no}"/>'>수정</a>
+        <a class="btn btn-success" href='<c:url value="/list" />'>목록</a>
+        <%-- TodoListServlet 으로 이동 --%>
     </div>
 </form>
 <%@ include file = "../include/footer.jsp"%>

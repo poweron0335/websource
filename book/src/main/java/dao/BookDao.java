@@ -5,13 +5,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import dto.ToDoDto;
+import dto.BookDto;
 
-public class ToDoDao {
+public class BookDao {
+
     private Connection con;
     private PreparedStatement pstmt;
     private ResultSet rs;
@@ -41,124 +41,108 @@ public class ToDoDao {
         return con;
     }
 
-    // 3. sql 작업
-    // 전체 조회 - read
-    public List<ToDoDto> getList() {
+    // 3. CRUD
+    // 전체조회
+    public List<BookDto> getList() {
         con = getConnection();
-        String sql = "SELECT no, title, create_at, completed FROM todotbl order by no desc";
+        String sql = "SELECT * FROM BOOKTBL order by code desc";
 
-        List<ToDoDto> list = new ArrayList<>();
-
+        List<BookDto> list = new ArrayList<>();
         try {
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                ToDoDto dto = new ToDoDto();
-                dto.setNo(rs.getInt("no"));
+                BookDto dto = new BookDto();
+                dto.setCode(rs.getInt("code"));
                 dto.setTitle(rs.getString("title"));
-                dto.setCreate_at(rs.getDate("create_at"));
-                dto.setCompleted(rs.getBoolean("completed"));
+                dto.setWriter(rs.getString("writer"));
+                dto.setPrice(rs.getInt("price"));
                 list.add(dto);
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             close(con, pstmt, rs);
         }
         return list;
-
     }
 
-    // 개별 조회
-    public ToDoDto getRow(String no) {
-
-        ToDoDto dto = null;
+    // 개별조회(PK 불러오면 됨)
+    public BookDto getRow(String code) {
+        BookDto dto = null;
         con = getConnection();
-        String sql = "SELECT * from todotbl where no = ?";
+        String sql = "SELECT * FROM BOOKTBL WHERE CODE = ?";
 
         try {
             pstmt = con.prepareStatement(sql);
-            // ? 해결
-            pstmt.setInt(1, Integer.parseInt(no));
+            pstmt.setInt(1, Integer.parseInt(code));
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                dto = new ToDoDto();
-                dto.setNo(rs.getInt("no"));
+                dto = new BookDto();
+                dto.setCode(rs.getInt("code"));
                 dto.setTitle(rs.getString("title"));
-                dto.setCreate_at(rs.getDate("create_at"));
-                dto.setCompleted(rs.getBoolean("completed"));
-                dto.setDscription(rs.getString("dscription"));
+                dto.setWriter(rs.getString("writer"));
+                dto.setPrice(rs.getInt("price"));
+                dto.setDescription(rs.getString("description"));
+
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             close(con, pstmt, rs);
         }
         return dto;
-
     }
 
-    // 추가 - Create(insert)
-    public int insert(ToDoDto insertDto) {
-
+    // 추가
+    public int insert(BookDto insertDto) {
         con = getConnection();
         int result = 0;
+        String sql = "INSERT INTO BOOKTBL (code, title, writer, price, description)";
+        sql += "VALUES(?, ?, ?, ?, ?)";
 
-        String sql = "INSERT INTO TODOTBL t (NO, title, dscription) VALUES(todo_seq.NEXTVAL, ?, ?)";
         try {
             pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, insertDto.getTitle());
-            pstmt.setString(2, insertDto.getDscription());
+            // ? 해결
+            pstmt.setInt(1, insertDto.getCode());
+            pstmt.setString(2, insertDto.getTitle());
+            pstmt.setString(3, insertDto.getWriter());
+            pstmt.setInt(4, insertDto.getPrice());
+            pstmt.setString(5, insertDto.getDescription());
             result = pstmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             close(con, pstmt);
         }
-
         return result;
     }
 
     // 수정
-    public int update(ToDoDto updateDto) {
-
+    public int update(BookDto updateDto) {
         con = getConnection();
-        int result = 0;
+        int resutl = 0;
+        String sql = "UPDATE BOOKTBL SET PRICE = ? WHERE CODE = ?";
 
-        String sql = "UPDATE TODOTBL SET COMPLETED = ?, DSCRIPTION = ? WHERE NO = ?";
         try {
             pstmt = con.prepareStatement(sql);
-            pstmt.setBoolean(1, updateDto.isCompleted());
-            pstmt.setString(2, updateDto.getDscription());
-            pstmt.setInt(3, updateDto.getNo());
-            result = pstmt.executeUpdate();
+            // ? 해결
+            pstmt.setInt(1, updateDto.getPrice());
+            pstmt.setInt(2, updateDto.getCode());
+            resutl = pstmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             close(con, pstmt);
         }
-
-        return result;
+        return resutl;
     }
 
     // 삭제
-    public int delete(String no) {
-        con = getConnection();
+    public int delete(int code) {
         int result = 0;
-
-        String sql = "DELETE todotbl WHERE NO = ?";
-        try {
-            pstmt = con.prepareStatement(sql);
-            pstmt.setInt(1, Integer.parseInt(no));
-            result = pstmt.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            close(con, pstmt);
-        }
         return result;
     }
 

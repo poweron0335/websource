@@ -4,7 +4,7 @@
 
 <%-- insert 구문이 어떻게 들어왔는지 보고 화면단 생성 --%>
 <h1 class="mt-5">Todo Create</h1>
-<form action='<c:url value="/view/createPro.jsp" />' method="post">
+<form action='<c:url value="/create" />' method="post">
     <div class="mb-3">
         <label for="title" class="form-label">title</label>
         <input type="text" class="form-control" id="title" placeholder="title" name="title">

@@ -10,7 +10,7 @@
 %>
 
 <h1 class="mt-5">Todo Modify</h1>
-<form action="updatePro.jsp" method="post">
+<form action="${pageContext.request.contextPath}/update" method="post">
     <div class="mb-3">
         <label for="title" class="form-label">title</label>
                 <%-- <input type="text" class="form-control" id="title" placeholder="title" name="title" value ="<%=todo.getTitle()%>"> --%>
@@ -34,7 +34,8 @@
     </div>
     <div>
         <button class="btn btn-primary" type="submit">수정</button>
-        <a class="btn btn-success" href='<c:url value="/view/list.jsp" />'>목록</a>
+        <a class="btn btn-danger" href='<c:url value="/delete?no=${todo.no}" />'>삭제</a>
+        <a class="btn btn-success" href='<c:url value="/list" />'>목록</a>
     </div>
     <%-- 화면에는 안 보이나 데이터는 따라가게끔 하는 강제 코드 --%>
     <input type="hidden" name="no" value="${todo.no}">
