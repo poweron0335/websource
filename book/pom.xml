@@ -8,6 +8,14 @@
   <name>book Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <dependencies>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+  </properties>
+
+
  <!-- 테스트 라이브러리 -->
     <dependency>
       <groupId>junit</groupId>

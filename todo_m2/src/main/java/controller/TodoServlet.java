@@ -12,7 +12,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import action.Action;
 import action.ActionForward;
+import action.TodoCreateAction;
+import action.TodoDeleteAction;
 import action.TodoListAction;
+import action.TodoReadAction;
+import action.TodoUpdateAction;
 import dao.ToDoDao;
 import dto.ToDoDto;
 import service.TodoService;
@@ -34,83 +38,39 @@ public class TodoServlet extends HttpServlet {
         // System.out.println("contextPath " + contextPath);
         System.out.println("cmd " + cmd);
 
-        ToDoDao dao = new ToDoDao();
-        TodoService service = new TodoServiceImpl();
-
         Action action = null;
         if (cmd.equals("/list.do")) {
             action = new TodoListAction("/view/list.jsp");
 
         } else if (cmd.equals("/read.do")) {
             // TodoReadServlet 에서 했던 작업
-            String no = req.getParameter("no");
-            // DB 작업
-            ToDoDto todo = service.getRow(no);
-            req.setAttribute("todo", todo);
-
-            // RequestDispatcher rd = req.getRequestDispatcher("/view/read.jsp");
-            // rd.forward(req, resp);
+            action = new TodoReadAction("/view/read.jsp");
 
         } else if (cmd.equals(("/modify.do"))) {
-            // TodoModifyServlet 에서 했던 작업
-            String no = req.getParameter("no");
-            // DB 작업
-            ToDoDto todo = service.getRow(no);
-            req.setAttribute("todo", todo);
-
-            // todo를 modfiy.jsp 에 보여주기
-            // 이동할 곳 지정 (어디로 가서 보여줄 것이냐)
-            // RequestDispatcher rd = req.getRequestDispatcher("/view/modify.jsp");
-            // rd.forward(req, resp);
+            // read 와 modify 는 값을 읽어와서 화면에 보여주는 동일한 작업을 하기 때문에
+            // TodoReadAction 를 그대로 가져오고 path 만 다르게 받아주면 됨
+            action = new TodoReadAction("/view/modify.jsp");
 
         } else if (cmd.equals("/update.do")) {
-            // TodoUpdateServlet 에서 했던 작업
-            // value 가 없는 경우 checkbox, radio 의 경우에는 on 값을 가지고 오게 됨
-            String completed = req.getParameter("completed");
-            String dscription = req.getParameter("dscription");
-            String no = req.getParameter("no");
 
-            // DB 작업
-            ToDoDto dto = new ToDoDto();
-
-            // boolean 타입의 형변환은 Boolean.parseBoolean() 으로 한다.
-            dto.setCompleted(Boolean.parseBoolean(completed));
-            dto.setDscription(dscription);
-            dto.setNo(Integer.parseInt(no));
-
-            boolean result = service.update(dto);
-
-            // servlet list 경로로 이동
-            // resp.sendRedirect("/list.do");
+            action = new TodoUpdateAction("list.do");
 
         } else if (cmd.equals("/delete.do")) {
-            // TodoDeleteServlet 에서 했던 작업
-            String no = req.getParameter("no");
 
-            // DB 작업
-            boolean result = service.delete(no);
-
+            action = new TodoDeleteAction("list.do");
             // resp.sendRedirect("/list.do");
 
         } else if (cmd.equals("/create.do")) {
             // TodoCreateServlet 에서 했던 작업
             // 사용자가 입력한 todo 가져오기
-            String title = req.getParameter("title");
-            String dscription = req.getParameter("dscription");
-            // DB 작업
-            ToDoDto insertDto = new ToDoDto();
-            // 사용자의 데이터를 넘긴다.
-            insertDto.setTitle(title);
-            insertDto.setDscription(dscription);
-
-            // result 에 넘기는 데이터를 담는다.
-            boolean result = service.insert(insertDto);
+            action = new TodoCreateAction("list.do");
             // resp.sendRedirect("/list.do");
         }
 
         ActionForward af = null;
 
         try {
+            // action 에서 하는 행동 시키는 구문
             af = action.execute(req);
         } catch (Exception e) {
             e.printStackTrace();
