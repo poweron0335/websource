@@ -3,26 +3,30 @@ package service;
 import java.util.List;
 
 import dto.BookDto;
+import dto.ChangeDto;
+import dto.MemberDto;
 
 public interface BookService {
-    // DAO CRUD 호출을 위한 추상클래스
-    // CRUD = 조회, 검색, 삽입, 삭제, 수정
-
-    // 개별 조회
+    // DAO 호출
+    // CRUD - 조회,검색,삽입,삭제,수정
     BookDto read(int code);
 
-    // 전체 조회
     List<BookDto> listAll();
 
-    // 검색
-    List<BookDto> searchListAll(String criteria, String keyword);
+    List<BookDto> searhListAll(String criteria, String keyword);
 
-    // 삽입
     boolean create(BookDto insertDto);
 
-    // 수정
-    boolean update(BookDto updateDto);
+    boolean update(BookDto insertDto);
 
-    // 삭제
     boolean delete(int code);
+
+    // member
+    MemberDto login(MemberDto loginDto);
+
+    boolean change(ChangeDto changeDto);
+
+    boolean register(MemberDto regDto);
+
+    boolean leave(MemberDto delDto);
 }

@@ -13,48 +13,58 @@ import action.Action;
 import action.ActionForward;
 import action.BookCreateAction;
 import action.BookDeleteAction;
+import action.BookLeaveAction;
 import action.BookListAction;
+import action.BookLoginAction;
+import action.BookLogoutAction;
+import action.BookPasswordAction;
 import action.BookReadAction;
+import action.BookRegisterAction;
+import action.BookSearchAction;
 import action.BookUpdateAction;
 
 @WebServlet("*.do")
 public class BookControllerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
         // 한글처리
         req.setCharacterEncoding("utf-8");
 
-        // URI 분리작업
+        // URI 분리
         String requestUri = req.getRequestURI();
         String contextPath = req.getContextPath();
         String cmd = requestUri.substring(contextPath.length());
 
-        System.out.println("cmd " + cmd);
         // cmd를 가지고 액션 생성
         Action action = null;
-        if (cmd.equals("/list.do")) {
 
+        if (cmd.equals("/list.do")) {
             // 작업이 끝난 후 보여줄 페이지 경로
             action = new BookListAction("/view/list.jsp");
-
         } else if (cmd.equals("/create.do")) {
-
-            action = new BookCreateAction("list.do");
-
+            action = new BookCreateAction("/list.do");
         } else if (cmd.equals("/read.do")) {
             action = new BookReadAction("/view/read.jsp");
         } else if (cmd.equals("/update.do")) {
-            action = new BookUpdateAction("read.do");
+            action = new BookUpdateAction("/read.do");
         } else if (cmd.equals("/delete.do")) {
-            action = new BookDeleteAction("list.do");
+            action = new BookDeleteAction("/list.do");
+        } else if (cmd.equals("/search.do")) {
+            action = new BookSearchAction("/view/list.jsp");
+        } else if (cmd.equals("/login.do")) {
+            action = new BookLoginAction("/list.do");
+        } else if (cmd.equals("/logout.do")) {
+            action = new BookLogoutAction("/");
+        } else if (cmd.equals("/change.do")) {
+            action = new BookPasswordAction("/view/login.jsp");
+        } else if (cmd.equals("/register.do")) {
+            action = new BookRegisterAction("/view/login.jsp");
+        } else if (cmd.equals("/leave.do")) {
+            action = new BookLeaveAction("/");
         }
 
-        // 생성된 action 에게 일 시키기(서블릿(~pro)이 해야했던 일)
-        // ActionForward 로 받아야하기 때문에 af 객체 생성
+        // 생성된 action에게 일 시키기(서블릿(~Pro)이 해야했던 일)
         ActionForward af = null;
-
-        // action 에서 시킨 일을 af 로 받는다는 의미
         try {
             af = action.execute(req);
         } catch (Exception e) {

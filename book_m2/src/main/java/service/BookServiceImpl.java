@@ -4,6 +4,8 @@ import java.util.List;
 
 import dao.BookDao;
 import dto.BookDto;
+import dto.ChangeDto;
+import dto.MemberDto;
 
 public class BookServiceImpl implements BookService {
 
@@ -20,7 +22,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookDto> searchListAll(String criteria, String keyword) {
+    public List<BookDto> searhListAll(String criteria, String keyword) {
         return dao.getSearchList(criteria, keyword);
     }
 
@@ -30,8 +32,8 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public boolean update(BookDto updateDto) {
-        return dao.update(updateDto) == 1;
+    public boolean update(BookDto insertDto) {
+        return dao.update(insertDto) == 1;
     }
 
     @Override
@@ -39,4 +41,23 @@ public class BookServiceImpl implements BookService {
         return dao.delete(code) == 1;
     }
 
+    @Override
+    public MemberDto login(MemberDto loginDto) {
+        return dao.isLogin(loginDto);
+    }
+
+    @Override
+    public boolean change(ChangeDto changeDto) {
+        return dao.passwordChange(changeDto) == 1;
+    }
+
+    @Override
+    public boolean register(MemberDto insertDto) {
+        return dao.register(insertDto) == 1;
+    }
+
+    @Override
+    public boolean leave(MemberDto delDto) {
+        return dao.memberDelete(delDto) == 1;
+    }
 }

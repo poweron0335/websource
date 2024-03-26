@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-
+<%@ page import = "dto.MemberDto"%>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="auto">
   <head>
@@ -9,7 +9,7 @@
     <meta name="description" content="" />
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors" />
     <meta name="generator" content="Hugo 0.122.0" />
-    <title>Book - model</title>
+    <title>Book - model1</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -105,7 +105,7 @@
       </symbol>
     </svg>
 
-    <main class="d-flex flex-nowrap">
+    <main class="d-flex flex-nowrap">  
       <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width: 280px">
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
           <svg class="bi pe-none me-2" width="40" height="32"><use xlink:href="#bootstrap" /></svg>
@@ -126,19 +126,19 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="/view/modify.jsp" class="nav-link text-white">
+            <a href='<c:url value="/view/modify.jsp" />' class="nav-link text-white">
               <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#modify"></use></svg>
               도서수정
             </a>
           </li>
           <li class="nav-item">
-            <a href="/view/search.jsp" class="nav-link text-white">
+            <a href='<c:url value="/view/search.jsp" />' class="nav-link text-white">
               <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#search" /></svg>
               도서검색
             </a>
           </li>
           <li class="nav-item">
-            <a href="/view/delete.jsp" class="nav-link text-white">
+            <a href='<c:url value="/view/delete.jsp" />' class="nav-link text-white">
               <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#trash"></use></svg>
               도서삭제
             </a>
@@ -151,24 +151,43 @@
           </li>
         </ul>
         <hr />
+        <%-- 회원 --%>
         <div class="dropdown">
-          <a
-            href="#"
-            class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2" />
-            <strong>mdo</strong>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-            <li><a class="dropdown-item" href="#">New project...</a></li>
-            <li><a class="dropdown-item" href="#">Settings</a></li>
-            <li><a class="dropdown-item" href="#">Profile</a></li>
-            <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item" href="#">Sign out</a></li>
-          </ul>
+          <%-- 로그인 안한 경우 --%>
+          <c:if test="${empty loginDto}"> 
+            <a
+              href="#"
+              class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >            
+              <strong>회원</strong>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+              <li><a class="dropdown-item" href='<c:url value="/view/login.jsp" />'>로그인</a></li>
+              <li><a class="dropdown-item" href='<c:url value="/view/register.jsp" />'>회원가입</a></li>            
+            </ul>
+          </c:if>
+          <%-- 로그인 한 경우 --%>
+          <c:if test="${not empty loginDto}">
+            <a
+              href="#"
+              class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2" />
+              <strong>${loginDto.name}</strong>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+              <li><a class="dropdown-item" href='<c:url value="/logout.do" />'>로그아웃</a></li>
+              <li><a class="dropdown-item" href='<c:url value="/view/pwdChange.jsp" />'>비밀번호수정</a></li>            
+              <li><a class="dropdown-item" href='<c:url value="/view/leave.jsp" />'>회원탈퇴</a></li>
+            </ul>
+          </c:if>
         </div>
+
+        <%-- //회원 종료 --%>
       </div>
 
       <div class="b-example-divider b-example-vr"></div>
