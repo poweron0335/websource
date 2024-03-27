@@ -50,7 +50,7 @@ public class BoardDao {
         List<BoardDto> list = new ArrayList<>();
 
         con = getConnection();
-        String sql = "SELECT bno, title, name, regdate, read_count from board order by bno desc";
+        String sql = "SELECT bno,title,name,REGDATE,READ_COUNT,RE_LEV FROM BOARD b ORDER BY re_ref DESC, re_seq ASC";
 
         try {
             pstmt = con.prepareStatement(sql);
@@ -63,6 +63,7 @@ public class BoardDao {
                 dto.setName(rs.getString("name"));
                 dto.setRegDate(rs.getDate("regDate"));
                 dto.setReadCount(rs.getInt("read_Count"));
+                dto.setReLev(rs.getInt("re_lev"));
 
                 list.add(dto);
             }
@@ -107,7 +108,7 @@ public class BoardDao {
         con = getConnection();
 
         BoardDto dto = null;
-        String sql = "SELECT bno, title, name, content, attach from board where bno = ?";
+        String sql = "SELECT bno, title, name, content, attach, re_ref, re_seq, re_lev from board where bno = ?";
 
         try {
             pstmt = con.prepareStatement(sql);
@@ -118,9 +119,13 @@ public class BoardDao {
                 dto = new BoardDto();
                 dto.setBno(rs.getInt("bno"));
                 dto.setTitle(rs.getString("title"));
-                dto.setName(rs.getString("title"));
+                dto.setName(rs.getString("name"));
                 dto.setContent(rs.getString("content"));
                 dto.setAttach(rs.getString("attach"));
+                // reply 에서 필요함
+                dto.setReRef(rs.getInt("re_ref"));
+                dto.setReSeq(rs.getInt("re_seq"));
+                dto.setReLev(rs.getInt("re_lev"));
 
             }
         } catch (SQLException e) {
@@ -131,6 +136,93 @@ public class BoardDao {
 
         return dto;
 
+    }
+
+    // 특정 글 수정
+    public int update(BoardDto updateDto) {
+        int result = 0;
+        con = getConnection();
+        // bno와 password 일치 시 제목, 내용 수정
+        String sql = "UPDATE board SET title = ?, content = ? where bno = ? and password = ?";
+
+        try {
+            pstmt = con.prepareStatement(sql);
+
+            pstmt.setString(1, updateDto.getTitle());
+            pstmt.setString(2, updateDto.getContent());
+            pstmt.setInt(3, updateDto.getBno());
+            pstmt.setString(4, updateDto.getPassword());
+
+            result = pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(con, pstmt);
+        }
+        return result;
+
+    }
+
+    // 특정 글 삭제
+    public int delete(BoardDto deleteDto) {
+        // bno와 password 일치시 삭제
+        int result = 0;
+
+        con = getConnection();
+        String sql = "DELETE FROM board where bno = ? and password = ?";
+
+        try {
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, deleteDto.getBno());
+            pstmt.setString(2, deleteDto.getPassword());
+            result = pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(con, pstmt);
+        }
+        return result;
+    }
+
+    // 댓글 작성
+    public int reply(BoardDto replyDto) {
+        int result = 0;
+
+        try {
+            con = getConnection();
+
+            // 원본글의 re_ref, re_seq, re_lev 가져오기
+            int reRef = replyDto.getReRef();
+            int reSeq = replyDto.getReSeq();
+            int reLev = replyDto.getReLev();
+
+            String sql = "UPDATE BOARD SET RE_SEQ = RE_SEQ + 1 WHERE RE_REF = ? AND RE_SEQ > ?";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, reRef);
+            pstmt.setInt(2, reSeq);
+
+            pstmt.executeUpdate();
+
+            sql = "INSERT INTO board(bno, name, password, title, content, re_ref, re_lev, re_seq)";
+            sql += "VALUES(board_seq.nextval, ?, ?, ?, ?, ?, ?, ?)";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, replyDto.getName());
+            pstmt.setString(2, replyDto.getPassword());
+            pstmt.setString(3, replyDto.getTitle());
+            pstmt.setString(4, replyDto.getContent());
+            pstmt.setInt(5, reRef);
+            pstmt.setInt(6, reLev + 1);
+            pstmt.setInt(7, reSeq + 1);
+
+            result = pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(con, pstmt);
+        }
+        return result;
     }
 
     // 4. 자원 정리

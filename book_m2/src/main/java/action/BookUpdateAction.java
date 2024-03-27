@@ -41,7 +41,7 @@ public class BookUpdateAction implements Action {
             // path 값이 read.do 이기 때문에 수정 화면을 보여주는 /view/modfiy.jsp 를 출력
             path = "/view/modify.jsp";
         }
-        return new ActionForward(path, false);
+        return new ActionForward(path, true);
     }
 
     // 사용자 입력 값으로 담을 수 없는 이유는 사용자 입력 값이 정확하지 않기 때문이다.
