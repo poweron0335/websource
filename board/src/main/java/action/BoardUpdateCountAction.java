@@ -6,11 +6,11 @@ import dto.BoardDto;
 import service.BoardService;
 import service.BoardServiceImpl;
 
-public class BoardReadAction implements Action {
+public class BoardUpdateCountAction implements Action {
 
     private String path;
 
-    public BoardReadAction(String path) {
+    public BoardUpdateCountAction(String path) {
         this.path = path;
     }
 
@@ -20,11 +20,12 @@ public class BoardReadAction implements Action {
         int bno = Integer.parseInt(req.getParameter("bno"));
 
         BoardService service = new BoardServiceImpl();
+        // 조회수 업데이트
+        service.updateCount(bno);
 
-        BoardDto dto = service.getRow(bno);
-        req.setAttribute("dto", dto);
+        path += "?bno=" + bno;
 
-        return new ActionForward(path, false);
+        return new ActionForward(path, true);
     }
 
 }

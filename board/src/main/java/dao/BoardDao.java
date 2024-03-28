@@ -12,6 +12,7 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
 import dto.BoardDto;
+import dto.SearchDto;
 
 public class BoardDao {
 
@@ -44,16 +45,82 @@ public class BoardDao {
         return con;
     }
 
+    // 전체 게시물 개수 가져오기
+    public int getRows(String criteria, String keyword) {
+
+        con = getConnection();
+
+        int result = 0;
+
+        try {
+            String sql = "";
+
+            if (criteria.isEmpty()) {
+                sql += "SELECT count(*) FROM board";
+                pstmt = con.prepareStatement(sql);
+            } else {
+                sql += "SELECT count(*) FROM board WHERE " + criteria + " LIKE ?";
+                pstmt = con.prepareStatement(sql);
+                pstmt.setString(1, "%" + keyword + "%");
+            }
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                result = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(con, pstmt, rs);
+        }
+
+        return result;
+    }
+
     // 3. CRUD
     // 전체 리스트 가져오기
-    public List<BoardDto> getList() {
+    public List<BoardDto> getList(SearchDto searchDto) {
         List<BoardDto> list = new ArrayList<>();
 
         con = getConnection();
-        String sql = "SELECT bno,title,name,REGDATE,READ_COUNT,RE_LEV FROM BOARD b ORDER BY re_ref DESC, re_seq ASC";
+        // String sql = "SELECT bno,title,name,REGDATE,READ_COUNT,RE_LEV FROM BOARD b
+        // ORDER BY re_ref DESC, re_seq ASC";
+
+        // start = 페이지번호 * 한 페이지당 게시물 수
+        // end = (페이지번호 - 1) * 한 페이지당 게시물 수
+        int start = searchDto.getPage() * searchDto.getAmount();
+        int end = (searchDto.getPage() - 1) * searchDto.getAmount();
 
         try {
-            pstmt = con.prepareStatement(sql);
+
+            // 중복 sql 구문이기때문에 밖으로 빼줌
+            String sql = "SELECT bno,title,name,REGDATE,READ_COUNT,RE_LEV ";
+            sql += "FROM (SELECT rownum AS rnum, A.* ";
+            sql += "FROM (SELECT bno,title,name,REGDATE,READ_COUNT,RE_LEV  ";
+            sql += "FROM BOARD b WHERE bno > 0 ";
+
+            // 전체리스트
+            if (searchDto.getCriteria().isEmpty()) {
+
+                sql += "ORDER BY re_ref DESC, re_seq ASC) A ";
+                sql += "WHERE rownum <= ?) WHERE rnum > ?";
+
+                pstmt = con.prepareStatement(sql);
+                pstmt.setInt(1, start);
+                pstmt.setInt(2, end);
+            } else {
+                // 검색리스트
+
+                sql += "AND " + searchDto.getCriteria() + " like ? ";
+                sql += "ORDER BY re_ref DESC, re_seq ASC) A ";
+                sql += "WHERE rownum <= ?) WHERE rnum > ?";
+
+                pstmt = con.prepareStatement(sql);
+                pstmt.setString(1, "%" + searchDto.getKeyword() + "%");
+                pstmt.setInt(2, start);
+                pstmt.setInt(3, end);
+            }
+
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -223,6 +290,64 @@ public class BoardDao {
             close(con, pstmt);
         }
         return result;
+    }
+
+    // 조회수 업데이트
+
+    public int updateCount(int bno) {
+        int result = 0;
+        con = getConnection();
+
+        String sql = "UPDATE board SET READ_COUNT = read_count +1 WHERE bno = ?";
+
+        try {
+            pstmt = con.prepareStatement(sql);
+
+            pstmt.setInt(1, bno);
+
+            result = pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(con, pstmt);
+        }
+        return result;
+
+    }
+
+    //
+    public List<BoardDto> getSearchList(SearchDto searchDto) {
+        List<BoardDto> list = new ArrayList<>();
+
+        con = getConnection();
+        String sql = "SELECT bno,title,name,REGDATE,READ_COUNT,RE_LEV ";
+        sql += "FROM BOARD b Where " + searchDto.getCriteria() + " like ? ";
+        // name, title, content 3개가 Criteria 안에 들어있으니 필드명 불러오기
+        sql += "ORDER BY re_ref DESC, re_seq ASC";
+        try {
+            pstmt = con.prepareStatement(sql);
+            // 특정 키워드 검색
+            // sql 구문에서 like 를 사용했을 때 무조건 % 가 붙으므로 넣어준다.
+            pstmt.setString(1, "%" + searchDto.getKeyword() + "%");
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                BoardDto dto = new BoardDto();
+                dto.setBno(rs.getInt("bno"));
+                dto.setTitle(rs.getString("title"));
+                dto.setName(rs.getString("name"));
+                dto.setRegDate(rs.getDate("regDate"));
+                dto.setReadCount(rs.getInt("read_Count"));
+                dto.setReLev(rs.getInt("re_lev"));
+
+                list.add(dto);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(con, pstmt, rs);
+        }
+        return list;
     }
 
     // 4. 자원 정리

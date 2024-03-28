@@ -17,6 +17,8 @@ import action.BoardListAction;
 import action.BoardModifyAction;
 import action.BoardReadAction;
 import action.BoardReplyAction;
+import action.BoardSearchAction;
+import action.BoardUpdateCountAction;
 import action.BoardWriteAction;
 
 @WebServlet("*.do")
@@ -53,6 +55,11 @@ public class BoardControllerServlet extends HttpServlet {
             action = new BoardReadAction("/view/qna_board_reply.jsp");
         } else if (cmd.equals("/qReply.do")) {
             action = new BoardReplyAction("/qList.do");
+        } else if (cmd.equals("/qCount.do")) {
+            action = new BoardUpdateCountAction("/qRead.do");
+            // 새로고침으로 인한 조회수 추가를 방지하기 위한 Action 분리 후 qRead.do 로 이동
+        } else if (cmd.equals("/qSearch.do")) {
+            action = new BoardSearchAction("/view/qna_board_list.jsp");
         }
 
         // 생성된 action에게 일 시키기(서블릿(~Pro)이 해야했던 일)
